@@ -15,6 +15,7 @@ class User(Base):
 
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
     documents = relationship("Document", back_populates="user", cascade="all, delete-orphan")
+    profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
 
 class Session(Base):
     __tablename__ = "sessions"
@@ -61,3 +62,19 @@ class DocumentParseEvent(Base):
     created_at = Column(DateTime(timezone=True), server_default=func.now())
 
     document = relationship("Document", back_populates="parse_events")
+
+class Profile(Base):
+    __tablename__ = "profiles"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    status = Column(String, default="pending") # pending, building, success, failed
+    canonical_profile_json = Column(Text, nullable=True) # JSON stored as Text
+    merged_from_document_ids = Column(Text, nullable=True) # JSON Array
+    confidence_summary_json = Column(Text, nullable=True) # JSON
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+    user = relationship("User", back_populates="profile")
+

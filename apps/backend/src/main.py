@@ -1,8 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.config import settings
-from src.routers.auth import router as auth_router
-from src.routers.documents import router as documents_router
+from src.routers import auth, documents, profiles
 
 app = FastAPI(title="JobTailor API")
 
@@ -15,8 +14,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(auth_router)
-app.include_router(documents_router)
+app.include_router(auth.router)
+app.include_router(documents.router)
+app.include_router(profiles.router)
 
 @app.get("/health")
 def health_check():

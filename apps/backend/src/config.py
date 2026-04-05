@@ -24,6 +24,9 @@ class Settings(BaseSettings):
     LINKEDIN_CLIENT_SECRET: str = ""
     LINKEDIN_REDIRECT_URI: str = ""
 
+    # Profile Parser
+    GEMINI_API_KEY: str = "AIzaSyBDxZSzxh2MVNaERiUQDtcwC6xwsetSKHg"
+
     class Config:
         case_sensitive = True
         env_file = ".env"

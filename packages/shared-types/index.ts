@@ -37,3 +37,11 @@ export interface DocumentDetailsResponse {
   extracted_text_url: string | null;
   events: DocumentEventResponse[];
 }
+
+export interface ProfileResponse {
+  id: number;
+  status: 'pending' | 'building' | 'success' | 'failed';
+  canonical_profile_json?: Record<string, any>;
+  confidence_summary_json?: Record<string, any>;
+  merged_from_document_ids?: number[];
+}
