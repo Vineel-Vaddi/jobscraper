@@ -51,7 +51,7 @@ An individual job seeker who:
 * User approval required before application launch.
 * Strong logging and reproducibility for every agent action.
 
-### Scope for v1
+### Scope for v1 (Phases 0–7 — all complete)
 
 In scope:
 
@@ -65,14 +65,22 @@ In scope:
 * Resume tailoring
 * Diff view
 * Apply launcher
+* Structured logging and observability
+* Retry handling and timeout guards
+* Admin debug panel
+* Saved job sessions
+* Profile preferences and role presets
+* Resume history and manual section pinning
+* Copy-ready cover note snippets
 
 Out of scope:
 
 * one-click auto-apply
-* cover-letter generator for every site
+* full cover-letter generator
 * auto-filling third-party portals
-* outreach messages
+* outreach message automation
 * recruiter CRM
+* external Grafana dashboards (metrics are served via Prometheus endpoint)
 
 ### Success metrics
 
@@ -178,14 +186,18 @@ The product is straightforward on the **sign-in** and **user-supplied profile im
 ### Core entities
 
 * `users`
+* `sessions`
 * `documents`
+* `document_parse_events`
 * `profiles`
-* `job_search_sessions`
+* `job_search_sessions` (with saved/archive fields)
 * `jobs`
 * `resume_variants`
 * `apply_events`
 * `agent_runs`
-* `parse_failures`
+* `profile_preferences`
+* `role_presets`
+* `resume_pins`
 
 ---
 
@@ -334,35 +346,32 @@ Deliverables:
 
 ---
 
-## Repo structure
+## Repo structure (as implemented)
 
 ```text
-jobtailor/
+jobscraper/
   apps/
-    web/
-    api/
-    worker/
+    web/                  # Next.js 14 frontend
+    backend/              # Unified FastAPI + Celery backend
+      src/
+        main.py
+        routers/          # auth, documents, profiles, jobs, resume, admin, polish, profile_prefs
+        schemas/          # Pydantic models
+        database/         # SQLAlchemy models, engine
+        worker/           # Celery tasks, parsers, tailoring pipeline
+        services/         # review/, polish/
+        telemetry/        # metrics, middleware, retries
+      alembic/
   packages/
-    shared-types/
-    ui/
-    prompts/
-    parsers/
-    scoring/
-    tailoring/
+    shared-types/         # TypeScript interfaces
   infra/
-    docker/
-    scripts/
-    migrations/
-  docs/
-    prd.md
-    architecture.md
-    api_contracts.md
-    agent_playbooks/
-  tests/
-    unit/
-    integration/
-    fixtures/
+    docker/               # docker-compose.yml
+  docs/                   # Engineering docs
+  phase_docs/             # Per-phase plans, tasks, walkthroughs
+  tests/                  # Unit + integration tests
 ```
+
+> **Note**: The original PRD proposed separate `api/` and `worker/` apps. The actual implementation uses a unified backend in `apps/backend` (see [ADR-001](docs/ADR-001-unified-backend.md)).
 
 ---
 
