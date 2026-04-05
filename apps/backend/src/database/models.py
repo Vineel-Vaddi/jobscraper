@@ -184,3 +184,23 @@ class ApplyEvent(Base):
     metadata_json = Column(Text, nullable=True)
     
     created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+class AgentRun(Base):
+    __tablename__ = "agent_runs"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True, nullable=True)
+    
+    run_type = Column(String, index=True) # document_parse, profile_build, job_ingest, resume_tailor
+    target_entity_type = Column(String, index=True)
+    target_entity_id = Column(Integer, index=True)
+    
+    status = Column(String, index=True, default="pending") 
+    started_at = Column(DateTime(timezone=True), server_default=func.now())
+    finished_at = Column(DateTime(timezone=True), nullable=True)
+    duration_ms = Column(Integer, nullable=True)
+    
+    retry_count = Column(Integer, default=0)
+    error_code = Column(String, nullable=True)
+    error_message = Column(Text, nullable=True)
+    metadata_json = Column(Text, nullable=True)

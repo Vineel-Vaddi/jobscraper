@@ -112,3 +112,24 @@ export interface ResumeVariantResponse {
   created_at: string;
   updated_at?: string;
 }
+
+export interface AgentRunResponse {
+  id: number;
+  run_type: string;
+  target_entity_type?: string;
+  target_entity_id?: number;
+  status: string;
+  duration_ms?: number;
+  error_code?: string;
+  error_message?: string;
+  started_at: string;
+  finished_at?: string;
+  metadata_json?: Record<string, any>;
+}
+
+export interface SystemSummaryResponse {
+  total_jobs: number;
+  total_variants: number;
+  failed_runs: number;
+  success_runs: number;
+}
