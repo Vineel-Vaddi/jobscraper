@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -51,9 +53,9 @@ export default function JobDetailPage({ params }: { params: { jobId: string, ses
     }
   };
 
-  const reasons = job.fit_reasons_json ? JSON.parse(job.fit_reasons_json) : [];
-  const gaps = job.fit_gaps_json ? JSON.parse(job.fit_gaps_json) : [];
-  const requirements = job.requirements_json || {};
+  const reasons: string[] = job.fit_reasons_json ? JSON.parse(job.fit_reasons_json) : [];
+  const gaps: string[] = job.fit_gaps_json ? JSON.parse(job.fit_gaps_json) : [];
+  const requirements: { skills?: string[] } = job.requirements_json || {};
 
   return (
     <div className="min-h-screen bg-gray-50 p-8">
@@ -95,7 +97,7 @@ export default function JobDetailPage({ params }: { params: { jobId: string, ses
                 <div className="mb-6">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-green-700 mb-2">Strengths</h4>
                   <ul className="space-y-2">
-                    {reasons.map((r, i) => (
+                    {reasons.map((r: string, i: number) => (
                       <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                         <span className="text-green-500">✓</span> {r}
                       </li>
@@ -108,7 +110,7 @@ export default function JobDetailPage({ params }: { params: { jobId: string, ses
                 <div className="mb-6">
                   <h4 className="text-xs font-bold uppercase tracking-wider text-red-700 mb-2">Gaps</h4>
                   <ul className="space-y-2">
-                    {gaps.map((g, i) => (
+                    {gaps.map((g: string, i: number) => (
                       <li key={i} className="text-sm text-gray-700 flex items-start gap-2">
                         <span className="text-red-500">!</span> {g}
                       </li>
@@ -121,7 +123,7 @@ export default function JobDetailPage({ params }: { params: { jobId: string, ses
                 <div>
                   <h4 className="text-xs font-bold uppercase tracking-wider text-gray-500 mb-2">Extracted Keywords</h4>
                   <div className="flex flex-wrap gap-2">
-                    {requirements.skills.map((s, i) => (
+                    {requirements.skills.map((s: string, i: number) => (
                       <span key={i} className="px-2 py-1 bg-gray-200 text-gray-800 rounded text-xs font-medium">{s}</span>
                     ))}
                   </div>

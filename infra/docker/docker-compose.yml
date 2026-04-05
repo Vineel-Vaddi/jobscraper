@@ -57,19 +57,14 @@ services:
       exit 0;
       "
 
-volumes:
-  postgres_data:
-  redis_data:
-  minio_data:
-
   api:
     build:
-      context: ./apps/backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
     volumes:
-      - ./apps/backend:/app
+      - ../../apps/backend:/app
     environment:
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-jobtailor}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-jobtailor}
       - REDIS_URL=redis://redis:6379/0
@@ -91,10 +86,10 @@ volumes:
 
   worker:
     build:
-      context: ./apps/backend
+      context: ../../apps/backend
       dockerfile: Dockerfile
     volumes:
-      - ./apps/backend:/app
+      - ../../apps/backend:/app
     environment:
       - DATABASE_URL=postgresql+psycopg2://${POSTGRES_USER:-jobtailor}:${POSTGRES_PASSWORD:-password}@db:5432/${POSTGRES_DB:-jobtailor}
       - REDIS_URL=redis://redis:6379/0
@@ -110,3 +105,8 @@ volumes:
       minio:
         condition: service_healthy
     command: celery -A src.worker.celery_app worker --loglevel=info
+
+volumes:
+  postgres_data:
+  redis_data:
+  minio_data:

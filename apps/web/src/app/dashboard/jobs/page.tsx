@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -40,7 +42,7 @@ export default function JobsIntakePage() {
       } else {
         setError("Failed to create job intake session.");
       }
-    } catch (err) {
+    } catch {
       setError("Network error occurred.");
     } finally {
       setLoading(false);

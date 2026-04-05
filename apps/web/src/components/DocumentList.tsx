@@ -10,7 +10,7 @@ export default function DocumentList({ documents, refresh }: { documents: any[],
     );
   }
 
-  const getStatusBadge = (status: str) => {
+  const getStatusBadge = (status: string) => {
     switch (status.toLowerCase()) {
       case 'success': return <span className="bg-green-100 text-green-800 text-xs px-2 py-1 rounded font-medium">Success</span>;
       case 'failed': return <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded font-medium">Failed</span>;

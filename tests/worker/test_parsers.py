@@ -3,9 +3,9 @@ import io
 import zipfile
 import docx
 from reportlab.pdfgen import canvas
-from apps.backend.src.worker.parsers.pdf_parser import parse_pdf
-from apps.backend.src.worker.parsers.docx_parser import parse_docx
-from apps.backend.src.worker.parsers.linkedin_export_parser import parse_linkedin_export
+from src.worker.parsers.pdf_parser import parse_pdf
+from src.worker.parsers.docx_parser import parse_docx
+from src.worker.parsers.linkedin_export_parser import parse_linkedin_export
 
 def create_sample_pdf_bytes():
     buf = io.BytesIO()

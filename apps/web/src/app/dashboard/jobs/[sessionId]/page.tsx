@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -81,7 +83,7 @@ export default function RankedJobsPage({ params }: { params: { sessionId: string
                   
                   {job.fit_reasons_json && (
                     <div className="mt-3 flex flex-wrap gap-2">
-                       {JSON.parse(job.fit_reasons_json).slice(0, 2).map((reason, i) => (
+                       {JSON.parse(job.fit_reasons_json).slice(0, 2).map((reason: string, i: number) => (
                          <span key={i} className="px-2 py-1 bg-green-50 text-green-700 rounded text-xs font-medium border border-green-100">✓ {reason}</span>
                        ))}
                     </div>

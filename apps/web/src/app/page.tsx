@@ -1,4 +1,4 @@
-import Link from "next/link";
+/* Landing page – no Link needed since we use anchor tag for LinkedIn OAuth */
 
 export default function Home() {
   return (

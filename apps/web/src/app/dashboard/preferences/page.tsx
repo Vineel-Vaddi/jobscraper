@@ -1,7 +1,9 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 
 export default function PreferencesPage() {
-  const [prefs, setPrefs] = useState<any>(null);
+  const [_prefs, setPrefs] = useState<any>(null);
   const [titles, setTitles] = useState<any[]>([]);
   const [presets, setPresets] = useState<any[]>([]);
   const [pins, setPins] = useState<any[]>([]);

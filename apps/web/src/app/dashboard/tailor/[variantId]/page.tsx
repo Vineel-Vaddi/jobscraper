@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
@@ -7,7 +9,7 @@ export default function ReviewVariantPage({ params }: { params: { variantId: str
   const [snippets, setSnippets] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [applying, setApplying] = useState<boolean>(false);
-  const router = useRouter();
+  const _router = useRouter();
   
   const variantId = params.variantId;
 
