@@ -133,3 +133,61 @@ export interface SystemSummaryResponse {
   failed_runs: number;
   success_runs: number;
 }
+
+// ── Phase 7 ─────────────────────────────────────────────────
+
+export interface ProfilePreferenceResponse {
+  id: number;
+  preferred_locations: string[];
+  preferred_work_modes: string[];
+  preferred_employment_types: string[];
+  target_seniority?: string;
+  preferred_industries: string[];
+  salary_notes?: string;
+  exclude_keywords: string[];
+  resume_emphasis?: string;
+}
+
+export interface RolePresetResponse {
+  id: number;
+  name: string;
+  target_titles: string[];
+  priority_skills: string[];
+  summary_focus?: string;
+  created_at: string;
+}
+
+export interface ResumePinResponse {
+  id: number;
+  source_type: string;
+  source_ref: string;
+  label?: string;
+  pin_mode: string;
+  created_at: string;
+}
+
+export interface ResumeHistoryItem {
+  id: number;
+  job_title: string;
+  company: string;
+  status: string;
+  ats_coverage?: number;
+  validator_status?: string;
+  applied: boolean;
+  created_at: string;
+  has_docx: boolean;
+  has_pdf: boolean;
+}
+
+export interface SuggestedTitle {
+  title: string;
+  confidence: string;
+  rationale: string;
+}
+
+export interface SnippetResponse {
+  short_intro: string;
+  why_fit: string;
+  why_role: string;
+  recruiter_note: string;
+}

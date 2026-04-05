@@ -96,6 +96,12 @@ class JobSearchSession(Base):
     normalized_result_count = Column(Integer, default=0)
     deduped_result_count = Column(Integer, default=0)
     
+    # Phase 7: saved sessions
+    is_saved = Column(Boolean, default=False)
+    saved_label = Column(String, nullable=True)
+    archived_at = Column(DateTime(timezone=True), nullable=True)
+    last_viewed_at = Column(DateTime(timezone=True), nullable=True)
+    
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
 
@@ -204,3 +210,52 @@ class AgentRun(Base):
     error_code = Column(String, nullable=True)
     error_message = Column(Text, nullable=True)
     metadata_json = Column(Text, nullable=True)
+
+# ── Phase 7 models ───────────────────────────────────────────────
+
+class ProfilePreference(Base):
+    __tablename__ = "profile_preferences"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), unique=True, index=True)
+    
+    preferred_locations_json = Column(Text, nullable=True)    # JSON array
+    preferred_work_modes_json = Column(Text, nullable=True)   # ["remote","hybrid"]
+    preferred_employment_types_json = Column(Text, nullable=True)
+    target_seniority = Column(String, nullable=True)
+    preferred_industries_json = Column(Text, nullable=True)
+    salary_notes = Column(String, nullable=True)
+    exclude_keywords_json = Column(Text, nullable=True)       # JSON array
+    resume_emphasis = Column(String, nullable=True)            # e.g. backend, ml, full-stack
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class RolePreset(Base):
+    __tablename__ = "role_presets"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    name = Column(String)
+    
+    target_titles_json = Column(Text, nullable=True)           # JSON array
+    priority_skills_json = Column(Text, nullable=True)         # JSON array
+    summary_focus = Column(String, nullable=True)
+    preference_overrides_json = Column(Text, nullable=True)    # JSON dict
+    pinned_section_rules_json = Column(Text, nullable=True)    # JSON dict
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+
+class ResumePin(Base):
+    __tablename__ = "resume_pins"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    
+    source_type = Column(String, index=True)  # profile_section, experience_bullet, project, summary_line, skill_cluster
+    source_ref = Column(String)               # identifies the pinned content (e.g. text hash or key)
+    label = Column(String, nullable=True)
+    pin_mode = Column(String, default="locked_if_supported")  # soft | strong | locked_if_supported
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

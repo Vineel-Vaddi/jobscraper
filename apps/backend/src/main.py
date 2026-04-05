@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from src.database.database import engine, Base
 from src.config import settings
-from src.routers import auth, documents, profiles, jobs, resume, admin
+from src.routers import auth, documents, profiles, jobs, resume, admin, profile_prefs, polish
 from src.telemetry.middleware import PrometheusMiddleware
 
 app = FastAPI(title="JobTailor API")
@@ -24,6 +24,8 @@ app.include_router(profiles.router)
 app.include_router(jobs.router)
 app.include_router(resume.router)
 app.include_router(admin.router)
+app.include_router(profile_prefs.router)
+app.include_router(polish.router)
 
 @app.get("/health")
 def health_check():

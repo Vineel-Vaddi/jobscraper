@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 export default function ReviewVariantPage({ params }: { params: { variantId: string } }) {
   const [variant, setVariant] = useState<any>(null);
   const [reviewData, setReviewData] = useState<any>(null);
+  const [snippets, setSnippets] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [applying, setApplying] = useState<boolean>(false);
   const router = useRouter();
@@ -36,6 +37,15 @@ export default function ReviewVariantPage({ params }: { params: { variantId: str
     } catch (e) {
        console.error(e);
     }
+    // Also fetch snippets
+    try {
+      const sResp = await fetch(`http://localhost:8000/api/resume-variants/${variantId}/snippets`, { method: 'POST', credentials: 'include' });
+      if (sResp.ok) setSnippets(await sResp.json());
+    } catch (e) { console.error(e); }
+  };
+
+  const copySnippet = (text: string) => {
+    navigator.clipboard.writeText(text);
   };
 
   useEffect(() => {
@@ -203,6 +213,24 @@ export default function ReviewVariantPage({ params }: { params: { variantId: str
                 </div>
               )}
               
+              {snippets && (
+                <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 border-l-4 border-l-indigo-500">
+                  <h3 className="font-bold text-gray-900 border-b pb-2 mb-4">Cover Note Snippets</h3>
+                  {(['short_intro', 'why_fit', 'why_role', 'recruiter_note'] as const).map(key => (
+                    <div key={key} className="mb-4">
+                      <div className="flex justify-between items-center mb-1">
+                        <span className="text-xs font-bold uppercase text-indigo-700">{key.replace(/_/g, ' ')}</span>
+                        <button
+                          onClick={() => copySnippet((snippets as any)[key])}
+                          className="text-xs text-indigo-600 hover:text-indigo-800 font-bold"
+                        >Copy</button>
+                      </div>
+                      <p className="text-sm text-gray-700 bg-indigo-50/50 border border-indigo-100 rounded p-2">{(snippets as any)[key]}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+
               <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
                  <h3 className="font-bold text-gray-900 border-b pb-2 mb-4">Downloads & Actions</h3>
                  <div className="flex flex-col gap-3">
