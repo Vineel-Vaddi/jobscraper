@@ -88,3 +88,27 @@ export interface JobResponse {
   
   created_at: string;
 }
+
+export interface ResumeVariantResponse {
+  id: number;
+  user_id: number;
+  profile_id?: number;
+  job_id?: number;
+  base_document_id?: number;
+  
+  status: string; // pending, processing, success, failed, needs_review
+  
+  jd_summary_json?: Record<string, any>;
+  keyword_alignment_json?: Record<string, any>;
+  skill_gap_json?: Record<string, any>;
+  tailored_resume_json?: Record<string, any>;
+  tailored_resume_text?: string;
+  validator_report_json?: Record<string, any>;
+  ats_score_json?: Record<string, any>;
+  
+  error_code?: string;
+  error_message?: string;
+  
+  created_at: string;
+  updated_at?: string;
+}

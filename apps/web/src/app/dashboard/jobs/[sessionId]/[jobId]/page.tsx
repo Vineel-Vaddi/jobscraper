@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 
 export default function JobDetailPage({ params }: { params: { jobId: string, sessionId: string } }) {
   const [job, setJob] = useState<any>(null);
   const [loading, setLoading] = useState<boolean>(true);
+  const [tailoring, setTailoring] = useState<boolean>(false);
+  const router = useRouter();
   
   const jobId = params.jobId;
 
@@ -24,6 +27,29 @@ export default function JobDetailPage({ params }: { params: { jobId: string, ses
 
   if (loading) return <div className="p-8">Loading...</div>;
   if (!job) return <div className="p-8 text-red-500">Job not found.</div>;
+
+  const handleTailor = async () => {
+    setTailoring(true);
+    try {
+      const resp = await fetch(`http://localhost:8000/api/resume-variants/generate`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ job_id: parseInt(jobId, 10) })
+      });
+      if (resp.ok) {
+        const variant = await resp.json();
+        router.push(`/dashboard/tailor/${variant.id}`);
+      } else {
+        alert("Failed to create tailoring session.");
+        setTailoring(false);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error triggering tailoring");
+      setTailoring(false);
+    }
+  };
 
   const reasons = job.fit_reasons_json ? JSON.parse(job.fit_reasons_json) : [];
   const gaps = job.fit_gaps_json ? JSON.parse(job.fit_gaps_json) : [];
@@ -103,8 +129,12 @@ export default function JobDetailPage({ params }: { params: { jobId: string, ses
               )}
 
               <div className="mt-8 pt-6 border-t border-gray-200">
-                 <button className="w-full bg-gray-900 text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition">
-                   Use for Targeting (Phase 4)
+                 <button 
+                   disabled={tailoring}
+                   onClick={handleTailor}
+                   className="w-full bg-gray-900 disabled:bg-gray-500 text-white font-medium py-3 rounded-lg hover:bg-gray-800 transition"
+                 >
+                   {tailoring ? 'Preparing...' : 'Use for Targeting (Phase 4)'}
                  </button>
               </div>
             </div>

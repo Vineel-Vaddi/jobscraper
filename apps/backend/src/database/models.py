@@ -18,6 +18,7 @@ class User(Base):
     profile = relationship("Profile", back_populates="user", uselist=False, cascade="all, delete-orphan")
     job_sessions = relationship("JobSearchSession", back_populates="user", cascade="all, delete-orphan")
     jobs = relationship("Job", back_populates="user", cascade="all, delete-orphan")
+    resume_variants = relationship("ResumeVariant", back_populates="user", cascade="all, delete-orphan")
 
 class Session(Base):
     __tablename__ = "sessions"
@@ -139,3 +140,33 @@ class Job(Base):
 
     user = relationship("User", back_populates="jobs")
     session = relationship("JobSearchSession", back_populates="jobs")
+
+class ResumeVariant(Base):
+    __tablename__ = "resume_variants"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    profile_id = Column(Integer, ForeignKey("profiles.id"), index=True)
+    job_id = Column(Integer, ForeignKey("jobs.id"), index=True)
+    base_document_id = Column(Integer, ForeignKey("documents.id"), nullable=True)
+    
+    status = Column(String, default="pending") # pending, processing, success, failed, needs_review
+    
+    jd_summary_json = Column(Text, nullable=True)
+    keyword_alignment_json = Column(Text, nullable=True)
+    skill_gap_json = Column(Text, nullable=True)
+    tailored_resume_json = Column(Text, nullable=True)
+    tailored_resume_text = Column(Text, nullable=True)
+    validator_report_json = Column(Text, nullable=True)
+    ats_score_json = Column(Text, nullable=True)
+    
+    export_docx_storage_key = Column(String, nullable=True)
+    export_pdf_storage_key = Column(String, nullable=True)
+    
+    error_code = Column(String, nullable=True)
+    error_message = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    updated_at = Column(DateTime(timezone=True), onupdate=func.now())
+    
+    user = relationship("User", back_populates="resume_variants")
