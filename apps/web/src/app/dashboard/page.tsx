@@ -34,6 +34,7 @@ export default function Dashboard() {
         <header className="flex justify-between items-center mb-8">
           <h1 className="text-3xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
           <div className="flex items-center gap-6">
+            <a href="/dashboard/jobs" className="text-blue-600 hover:text-blue-800 font-medium bg-blue-50 px-4 py-2 rounded-lg">Job Intake</a>
             <a href="/dashboard/profile" className="text-blue-600 hover:text-blue-800 font-medium">Canonical Profile</a>
             <button 
               onClick={() => {

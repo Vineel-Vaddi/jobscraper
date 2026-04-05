@@ -45,3 +45,46 @@ export interface ProfileResponse {
   confidence_summary_json?: Record<string, any>;
   merged_from_document_ids?: number[];
 }
+
+export interface JobSearchSessionResponse {
+  id: number;
+  status: 'pending' | 'processing' | 'success' | 'failed';
+  source_url: string;
+  source_type: string;
+  ingest_error_code?: string;
+  ingest_error_message?: string;
+  raw_result_count: number;
+  normalized_result_count: number;
+  deduped_result_count: number;
+  created_at: string;
+}
+
+export interface JobResponse {
+  id: number;
+  job_search_session_id: number;
+  external_job_id?: string;
+  source_type: string;
+  source_job_url: string;
+  canonical_job_url?: string;
+  
+  title: string;
+  company: string;
+  location?: string;
+  work_mode?: string;
+  employment_type?: string;
+  seniority?: string;
+  
+  posted_at_raw?: string;
+  posted_at_normalized?: string;
+  
+  description_text?: string;
+  requirements_json?: Record<string, any>;
+  metadata_json?: Record<string, any>;
+  
+  normalization_confidence?: string;
+  fit_score?: number;
+  fit_reasons_json?: string[];
+  fit_gaps_json?: string[];
+  
+  created_at: string;
+}

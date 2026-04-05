@@ -1,0 +1,24 @@
+# Phase 2 Tasks
+
+- [x] 1. Build profile schema and DB layer
+    - [x] Add `Profile` to `models.py`
+    - [x] Add `Profile` relationship to `User`
+    - [x] Run alembic migrations
+- [x] 2. Build semantic extraction layer
+    - [x] Add `gemini_client.py` for Gemini API wrapper
+    - [x] Create `semantic_parser.py` schema extraction prompts
+- [/] 3. Build normalization and merge logic
+    - [ ] Create `profile_merger.py` tests 
+    - [ ] Create `profile_merger.py` precedence and conflict detection rule
+- [x] 4. Build profile API
+    - [x] Create Celery task in `worker/profile_tasks.py`
+    - [x] Create `schemas/profiles.py`
+    - [x] Create `routers/profiles.py`
+    - [x] Register router in `main.py`
+- [x] 5. Build profile review UI
+    - [x] Create `app/dashboard/profile/page.tsx`
+    - [x] Build `ProfileSection` and `EditableField` card components
+    - [x] Wire up "Build Profile" and "Save" actions
+- [x] 6. QA & Logs
+    - [x] Verify UI flows and error handling
+    - [x] Ensure confidence and provenance are stored
