@@ -170,3 +170,17 @@ class ResumeVariant(Base):
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
     
     user = relationship("User", back_populates="resume_variants")
+
+class ApplyEvent(Base):
+    __tablename__ = "apply_events"
+    
+    id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), index=True)
+    job_id = Column(Integer, ForeignKey("jobs.id"), index=True)
+    resume_variant_id = Column(Integer, ForeignKey("resume_variants.id"), index=True)
+    
+    event_type = Column(String, index=True) 
+    target_url = Column(String, nullable=True)
+    metadata_json = Column(Text, nullable=True)
+    
+    created_at = Column(DateTime(timezone=True), server_default=func.now())

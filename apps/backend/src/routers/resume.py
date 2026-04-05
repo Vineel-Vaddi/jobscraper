@@ -4,9 +4,12 @@ from typing import List
 import os
 
 from src.database.database import get_db
-from src.database.models import User, ResumeVariant, Job, Profile, Document
+from src.database.models import User, ResumeVariant, Job, Profile, Document, ApplyEvent
 from src.routers.auth import get_current_user
-from src.schemas.resume import CreateTailoredResumeRequest, ResumeVariantResponse
+from src.schemas.resume import CreateTailoredResumeRequest, ResumeVariantResponse, ReviewPayloadResponse, ApplyEventCreate, ApplyEventResponse
+from src.services.review.diff_engine import DiffEngine
+from src.services.review.why_changed import WhyChangedGenerator
+import json
 
 router = APIRouter(prefix="/api/resume-variants", tags=["resume"])
 
@@ -122,3 +125,85 @@ def download_resume_pdf(
         'Content-Disposition': f'attachment; filename="Tailored_Resume_{variant.id}.pdf"'
     }
     return Response(content=file_bytes, media_type='application/pdf', headers=headers)
+
+@router.get("/{variant_id}/review", response_model=ReviewPayloadResponse)
+def get_variant_review_data(
+    variant_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    variant = db.query(ResumeVariant).filter(ResumeVariant.id == variant_id, ResumeVariant.user_id == current_user.id).first()
+    if not variant:
+        raise HTTPException(status_code=404, detail="Variant not found")
+        
+    profile = db.query(Profile).filter(Profile.id == variant.profile_id).first()
+    job = db.query(Job).filter(Job.id == variant.job_id).first()
+    
+    canonical_json = json.loads(profile.canonical_profile_json) if profile and profile.canonical_profile_json else {}
+    tailored_json = json.loads(variant.tailored_resume_json) if variant.tailored_resume_json else {}
+    
+    diffs = DiffEngine.compute_diff(canonical_json, tailored_json)
+    
+    kw_align = json.loads(variant.keyword_alignment_json) if variant.keyword_alignment_json else {}
+    skill_gaps = json.loads(variant.skill_gap_json) if variant.skill_gap_json else {}
+    validator = json.loads(variant.validator_report_json) if variant.validator_report_json else {}
+    
+    notes = WhyChangedGenerator.generate_notes(kw_align, skill_gaps, validator)
+    
+    return {
+        "base_resume_summary": canonical_json,
+        "tailored_resume_summary": tailored_json,
+        "section_diffs": diffs,
+        "why_changed_notes": notes,
+        "validator_summary": validator,
+        "ats_summary": json.loads(variant.ats_score_json) if variant.ats_score_json else {},
+        "original_job_url": job.source_job_url if job else None
+    }
+
+@router.post("/{variant_id}/events", response_model=ApplyEventResponse)
+def log_apply_event(
+    variant_id: int,
+    request: ApplyEventCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    variant = db.query(ResumeVariant).filter(ResumeVariant.id == variant_id, ResumeVariant.user_id == current_user.id).first()
+    if not variant:
+        raise HTTPException(status_code=404, detail="Variant not found")
+        
+    event = ApplyEvent(
+        user_id=current_user.id,
+        job_id=variant.job_id,
+        resume_variant_id=variant.id,
+        event_type=request.event_type,
+        metadata_json=json.dumps(request.metadata_json) if request.metadata_json else None
+    )
+    db.add(event)
+    db.commit()
+    db.refresh(event)
+    return event
+
+@router.post("/{variant_id}/go-apply")
+def trigger_go_apply(
+    variant_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    variant = db.query(ResumeVariant).filter(ResumeVariant.id == variant_id, ResumeVariant.user_id == current_user.id).first()
+    if not variant:
+        raise HTTPException(status_code=404, detail="Variant not found")
+        
+    job = db.query(Job).filter(Job.id == variant.job_id).first()
+    target = job.source_job_url if job else ""
+    
+    event = ApplyEvent(
+        user_id=current_user.id,
+        job_id=variant.job_id,
+        resume_variant_id=variant.id,
+        event_type="go_apply_clicked",
+        target_url=target
+    )
+    db.add(event)
+    db.commit()
+    
+    return {"status": "ok", "target_url": target}

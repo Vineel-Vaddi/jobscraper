@@ -28,5 +28,38 @@ class ResumeVariantResponse(BaseModel):
     created_at: datetime
     updated_at: Optional[datetime] = None
 
+
+class ApplyEventCreate(BaseModel):
+    event_type: str
+    metadata_json: Optional[Dict[str, Any]] = None
+
+class ApplyEventResponse(BaseModel):
+    id: int
+    user_id: int
+    job_id: int
+    resume_variant_id: int
+    event_type: str
+    target_url: Optional[str] = None
+    metadata_json: Optional[Dict[str, Any]] = None
+    created_at: datetime
+    
     class Config:
         from_attributes = True
+
+class BulletDiff(BaseModel):
+    text: str
+    type: str # unchanged, added, removed, rewritten
+
+class SectionDiff(BaseModel):
+    section_name: str
+    status: str
+    bullets: list[BulletDiff]
+
+class ReviewPayloadResponse(BaseModel):
+    base_resume_summary: Dict[str, Any]
+    tailored_resume_summary: Dict[str, Any]
+    section_diffs: list[SectionDiff]
+    why_changed_notes: list[str]
+    validator_summary: Dict[str, Any]
+    ats_summary: Dict[str, Any]
+    original_job_url: Optional[str] = None
