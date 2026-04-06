@@ -1,7 +1,7 @@
 # JobTailor — Release Test Results
 
-**Test Date**: 2026-04-06T04:52 IST (2026-04-05T23:22 UTC)  
-**Commit SHA**: `7e2958f5d20592f143f482ca3e19f1862ecdabe5`  
+**Test Date**: 2026-04-06T15:30 IST (2026-04-06T10:00 UTC)  
+**Commit SHA**: `d8d9e7c` (fix commit) on `main`  
 **Branch**: `main`  
 **Tester**: Automated release engineering pipeline  
 
@@ -15,7 +15,7 @@
 | Python | 3.14.3 |
 | Node.js | v24.14.1 |
 | Docker | ❌ Not available on test machine |
-| Git | Not on PATH (accessed via `.git/` directly) |
+| Git | 2.53.0 (at `C:\Program Files\Git\bin\git.exe`) |
 
 ---
 
@@ -88,13 +88,15 @@ Result: 28 passed, 0 failed, 0 skipped
 
 | Check | Result |
 |-------|--------|
-| `docker-compose.yml` syntax | ✅ FIXED (services were outside `services:` block) |
+| `docker-compose.yml` YAML syntax | ✅ VALIDATED (Python `yaml.safe_load`) |
+| `docker-compose.yml` service completeness | ✅ 6 services: db, redis, minio, minio-create-buckets, api, worker |
+| `docker-compose.yml` volume completeness | ✅ 3 volumes: postgres_data, redis_data, minio_data |
 | Docker stack boot | ⚠️ NOT TESTED (Docker not installed on this machine) |
 | PostgreSQL health | ⚠️ Not tested |
 | Redis health | ⚠️ Not tested |
 | MinIO health | ⚠️ Not tested |
 
-> **Note**: Docker is not available on the test machine. The `docker-compose.yml` was structurally broken (critical YAML issue) and has been fixed. Functional validation requires a Docker-equipped host.
+> **Note**: Docker is not available on the test machine. The `docker-compose.yml` was structurally broken (critical YAML issue) and has been fixed. Structure validated programmatically via `yaml.safe_load`. Functional validation requires a Docker-equipped host.
 
 ### E. Migration Validation
 
@@ -112,12 +114,24 @@ Migration files in order:
 5. `5d6e7f8a9b0c_add_agent_runs_model.py`
 6. `6e7f8a9b0c1d_phase7_polish_schema.py`
 
-### F. Localhost Smoke Tests
+### F. Localhost Smoke Tests (Browser-Verified)
+
+| Route | URL | Renders | UI Elements |
+|-------|-----|---------|-------------|
+| Landing | `/` | ✅ | Title "JobTailor", LinkedIn sign-in button |
+| Dashboard | `/dashboard` | ✅ | Resume + LinkedIn Export upload cards, navigation |
+| Job Intake | `/dashboard/jobs` | ✅ | URL input, "Ingest Jobs" button, Past Sessions list |
+| Preferences | `/dashboard/preferences` | ✅ | Loading state (graceful without backend) |
+| Resume History | `/dashboard/history` | ✅ | Loading state (graceful without backend) |
+| Admin Diagnostics | `/dashboard/admin` | ✅ | "Loading Admin Metrics..." (graceful) |
+| Canonical Profile | `/dashboard/profile` | ✅ | "Build Profile" button, Loading state |
+
+**All 7 frontend routes pass** — no React error boundaries, no blank pages, no console errors.
+
+#### Backend Endpoints (require Docker stack)
 
 | Endpoint | URL | Status |
 |----------|-----|--------|
-| Web UI (landing) | http://localhost:3000 | ✅ Verified |
-| Dashboard | http://localhost:3000/dashboard | ✅ Verified |
 | FastAPI Docs | http://localhost:8000/docs | ⚠️ Requires Docker stack |
 | Health Check | http://localhost:8000/health | ⚠️ Requires Docker stack |
 | Deep Health | http://localhost:8000/api/admin/health/deep | ⚠️ Requires Docker stack |
@@ -159,6 +173,12 @@ Migration files in order:
 | `apps/web/src/app/dashboard/tailor/[variantId]/page.tsx` | Added `'use client'`; prefixed unused router |
 | `apps/web/src/components/DocumentList.tsx` | Fixed `str` → `string` type annotation |
 
+### Repo Hygiene
+| File | Change |
+|------|--------|
+| `.gitignore` | **NEW** — Root gitignore for `__pycache__/`, `node_modules/`, `.next/`, `.env`, etc. |
+| 26 × `.pyc` files | Removed from git index via `git rm --cached` |
+
 ### Documentation
 | File | Change |
 |------|--------|
@@ -175,7 +195,6 @@ Migration files in order:
 | `react-hooks/exhaustive-deps` warnings (2) | Low | In `[sessionId]/page.tsx` and `[variantId]/page.tsx` — intentional polling patterns |
 | No E2E test suite | Medium | Integration/E2E testing requires running backend + DB stack |
 | Python 3.14 vs CI 3.11 | Low | Tests pass on 3.14; CI uses 3.11 — no compatibility issues found |
-| `node_modules` committed in `apps/web` | Low | `.gitignore` exists but `node_modules` present in working tree |
 
 ---
 
@@ -185,8 +204,7 @@ Migration files in order:
 2. **Run Alembic migrations** against a fresh database to verify migration chain
 3. **Add E2E smoke test script** that curls health, auth-mock, document, and jobs endpoints
 4. **Gradually replace `any` types** with proper TypeScript interfaces from `packages/shared-types`
-5. **Add `node_modules` to `.gitignore`** at root level if monorepo-level ignoring is intended
-6. **Consider adding `pyproject.toml` to CI** so pytest config is portable
+5. **Consider adding `pyproject.toml` to CI** so pytest config is portable
 
 ---
 
